@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>flowers.js — doodle flowers for webpage edges</title>
+<style>
+  :root {
+    --paper: #fafbfd;
+    --grid: #e3e9f4;
+    --ink: #333f57;
+    --muted: #69778f;
+    --surface: #ffffff;
+    --shadow: #d5deee;
+    --accent: #e05780;
+    --hatch-a: #8b93a5;
+    --hatch-b: #e9edf4;
+    --code-bg: #2b3346;
+    --code-ink: #dbe4f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141925;
+      --grid: #1f2736;
+      --ink: #dee6f5;
+      --muted: #8fa0bd;
+      --surface: #1b2231;
+      --shadow: #0c1019;
+      --accent: #f27ba0;
+      --hatch-a: #55607a;
+      --hatch-b: #232c3f;
+      --code-bg: #10151f;
+      --code-ink: #c7d3ea;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141925;
+    --grid: #1f2736;
+    --ink: #dee6f5;
+    --muted: #8fa0bd;
+    --surface: #1b2231;
+    --shadow: #0c1019;
+    --accent: #f27ba0;
+    --hatch-a: #55607a;
+    --hatch-b: #232c3f;
+    --code-bg: #10151f;
+    --code-ink: #c7d3ea;
+  }
+  :root[data-theme="light"] {
+    --paper: #fafbfd;
+    --grid: #e3e9f4;
+    --ink: #333f57;
+    --muted: #69778f;
+    --surface: #ffffff;
+    --shadow: #d5deee;
+    --accent: #e05780;
+    --hatch-a: #8b93a5;
+    --hatch-b: #e9edf4;
+    --code-bg: #2b3346;
+    --code-ink: #dbe4f5;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 110px;
+    display: flex;
+    flex-direction: column;
+    gap: 140px;
+  }
+
+  header { text-align: center; }
+  header h1 {
+    font-size: clamp(2.2rem, 6vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    width: fit-content;
+    margin: 64px auto 70px;
+    padding: 2px 14px;
+    text-wrap: balance;
+  }
+  header .sub { color: var(--muted); max-width: 34ch; margin: 0 auto; text-wrap: balance; }
+
+  .fig { display: flex; flex-direction: column; gap: 130px; }
+  .fig.tight { gap: 70px; }
+  .fig.sky { gap: 195px; }
+  .fig.skyhigh { gap: 235px; }
+  .fig > figcaption { align-self: flex-start; }
+
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--shadow);
+    padding: 36px 40px;
+    max-width: 460px;
+    align-self: center;
+    text-align: center;
+    cursor: pointer;
+  }
+  .card h2 { font-size: 1.25rem; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: 0.95rem; }
+
+  .shelf {
+    height: 34px;
+    margin: 0 26px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: repeating-linear-gradient(115deg, var(--hatch-a) 0 3px, var(--hatch-b) 3px 9px);
+    transform: rotate(-3deg);
+    cursor: pointer;
+  }
+  .shelf.autumn {
+    background: repeating-linear-gradient(115deg, #a2703a 0 3px, #ecd9b4 3px 9px);
+    transform: rotate(2deg);
+  }
+
+  /* film noir commits to one look in both page themes */
+  .noir {
+    background: #101014;
+    color: #ecece6;
+    border: 2px solid #ecece6;
+    border-radius: 14px;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+    padding: 34px 40px;
+    max-width: 430px;
+    align-self: center;
+    text-align: center;
+    cursor: pointer;
+  }
+  .noir h2 { font-size: 1.1rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+  .noir p { color: #a8a8a0; font-size: 0.95rem; }
+
+  .ground {
+    height: 4px;
+    background: var(--ink);
+    border-radius: 2px;
+    margin: 0 12px;
+    cursor: pointer;
+  }
+
+  .headline {
+    display: block;
+    width: fit-content;
+    align-self: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+
+  .controls { text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 var(--shadow);
+    padding: 10px 24px;
+    cursor: pointer;
+  }
+  button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .snippet { display: flex; flex-direction: column; gap: 10px; }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-size: 0.84rem;
+    line-height: 1.65;
+  }
+  footer { text-align: center; }
+</style>
+
+<main>
+  <header>
+    <p class="mono">one file &middot; zero dependencies &middot; canvas 2d</p>
+    <h1 id="title">flowers.js</h1>
+    <p class="sub">Algorithmic doodle flowers that grow around the edges of things &mdash; grown from a pencil doodle in a meeting notebook.</p>
+  </header>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 1 &mdash; a card, all four edges</figcaption>
+    <div class="card" id="card" title="click to regrow">
+      <h2>A flowery card</h2>
+      <p>Flowers sprout outward from every edge.</p>
+    </div>
+  </figure>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 2 &mdash; after the original sketch</figcaption>
+    <div class="shelf" id="shelf" title="click to regrow"></div>
+  </figure>
+
+  <figure class="fig tight">
+    <figcaption class="mono">fig. 3 &mdash; around a headline</figcaption>
+    <span class="headline" id="headline" title="click to regrow">Even around a headline</span>
+  </figure>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 4 &mdash; theme: 'autumn'</figcaption>
+    <div class="shelf autumn" id="autumn" title="click to regrow"></div>
+  </figure>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 5 &mdash; theme: 'noir'</figcaption>
+    <div class="noir" id="noir" title="click to regrow">
+      <h2>The noir cut</h2>
+      <p>Greyscale blooms, silver stems.</p>
+    </div>
+  </figure>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 6 &mdash; theme: 'meadow' (2.3&times; density)</figcaption>
+    <div class="ground" id="meadow" title="click to regrow"></div>
+  </figure>
+
+  <figure class="fig tight">
+    <figcaption class="mono">fig. 7 &mdash; trigger: 'hover'</figcaption>
+    <div class="card" id="hovercard" tabindex="0">
+      <h2>Hover over me &#127793;</h2>
+      <p>Blooms while you&rsquo;re here, wilts when you go.</p>
+    </div>
+  </figure>
+
+  <figure class="fig sky">
+    <figcaption class="mono">fig. 8 &mdash; cranes.js &middot; count: 3</figcaption>
+    <div class="card" id="site" title="click to rebuild">
+      <h2>Under construction &#127959;&#65039;</h2>
+      <p>Cranes assemble along the roof; flowers take the ground floor.</p>
+    </div>
+  </figure>
+
+  <figure class="fig skyhigh">
+    <figcaption class="mono">fig. 9 &mdash; kites.js &middot; count: 3</figcaption>
+    <div class="ground" id="park" title="click to relaunch"></div>
+  </figure>
+
+  <figure class="fig tight">
+    <figcaption class="mono">fig. 10 &mdash; heli.js &middot; a bell 412 arrives, hovers, lands on the button</figcaption>
+    <div class="controls">
+      <button id="regrow" type="button">&#127793; Regrow everything</button>
+      <p class="mono">&hellip;or click any figure to regrow just it</p>
+    </div>
+  </figure>
+
+  <div class="snippet">
+    <p class="mono">usage</p>
+    <pre><code>&lt;script src="flowers.js"&gt;&lt;/script&gt;
+&lt;script src="cranes.js"&gt;&lt;/script&gt;
+&lt;script src="kites.js"&gt;&lt;/script&gt;
+&lt;script src="heli.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const field = Flowers.grow('#card', {
+    edges: ['top', 'bottom', 'left', 'right'],
+    theme: 'autumn',   // or 'noir', 'meadow' — omit for the classic garden
+    trigger: 'hover',  // or 'load' (default), 'visible', 'manual'
+    density: 1,        // plant count multiplier
+    size: [26, 78],    // stem length range, px
+    seed: 7,           // set for a reproducible arrangement
+  });
+  field.regrow();      // fresh arrangement, replay the growth
+
+  const site = Cranes.build('#hero', {
+    count: 3,          // a request — packed so they never overlap
+    labels: ['FABCO'], // nameplates painted on some decks
+    idle: true,        // hooks keep gently swaying after assembly
+  });
+  site.rebuild();      // a new skyline
+
+  const sky = Kites.fly('#park', { count: 3 });
+  sky.relaunch();      // little people, fresh kites
+
+  const pad = Heli.hover('#cta', { labels: ['G-MEGN'] });
+  pad.refly();         // fly in again with a new livery
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <footer>
+    <p class="mono">full options &amp; api in README.md</p>
+  </footer>
+</main>
+<script src="flowers.js"></script>
+<script src="cranes.js"></script>
+<script src="kites.js"></script>
+<script src="heli.js"></script>
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    if (params.has('theme')) document.documentElement.dataset.theme = params.get('theme');
+    var isStatic = params.has('static');
+
+    var fields = [
+      Flowers.grow('#title', {
+        edges: ['top', 'bottom', 'left', 'right'],
+        size: [13, 34], spacing: 26, density: 1.1,
+        seed: isStatic ? 3 : null, animate: !isStatic
+      }),
+      Flowers.grow('#card', {
+        density: 0.9,
+        seed: isStatic ? 11 : null, animate: !isStatic
+      }),
+      Flowers.grow('#shelf', {
+        edges: ['top'], density: 1.4, size: [30, 95],
+        whenVisible: !isStatic,
+        seed: isStatic ? 5 : null, animate: !isStatic
+      }),
+      Flowers.grow('#headline', {
+        edges: ['bottom', 'left', 'right'], size: [18, 44], spacing: 30,
+        whenVisible: !isStatic,
+        seed: isStatic ? 23 : null, animate: !isStatic
+      }),
+      Flowers.grow('#autumn', {
+        theme: 'autumn', edges: ['top'], density: 1.3, size: [28, 90],
+        whenVisible: !isStatic,
+        seed: isStatic ? 31 : null, animate: !isStatic
+      }),
+      Flowers.grow('#noir', {
+        theme: 'noir', density: 0.9,
+        whenVisible: !isStatic,
+        seed: isStatic ? 8 : null, animate: !isStatic
+      }),
+      Flowers.grow('#meadow', {
+        theme: 'meadow', edges: ['top'],
+        whenVisible: !isStatic,
+        seed: isStatic ? 14 : null, animate: !isStatic
+      }),
+      Flowers.grow('#hovercard', {
+        trigger: isStatic ? 'load' : 'hover',
+        density: 1.1, size: [22, 60],
+        seed: isStatic ? 42 : null, animate: !isStatic
+      }),
+      Flowers.grow('#site', {
+        edges: ['bottom'], density: 1.1, size: [18, 46],
+        whenVisible: !isStatic,
+        seed: isStatic ? 17 : null, animate: !isStatic
+      }),
+      Cranes.build('#site', {
+        count: 3, size: [45, 85], labels: ['FABCO', 'UGS-163'], idle: true,
+        whenVisible: !isStatic,
+        seed: isStatic ? 6 : null, animate: !isStatic
+      }),
+      Kites.fly('#park', {
+        count: 3, size: [60, 115],
+        whenVisible: !isStatic,
+        seed: isStatic ? 27 : null, animate: !isStatic, idle: !isStatic
+      }),
+      Heli.hover('#regrow', {
+        labels: ['G-MEGN'],
+        whenVisible: !isStatic,
+        seed: isStatic ? 9 : null, animate: !isStatic, idle: !isStatic
+      })
+    ];
+
+    fields.forEach(function (f) {
+      f.el.addEventListener('click', function () { f.regrow(); });
+    });
+    document.getElementById('regrow').addEventListener('click', function () {
+      fields.forEach(function (f) { f.regrow(); });
+    });
+  })();
+</script>
+</html>
