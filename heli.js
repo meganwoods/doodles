@@ -392,20 +392,28 @@
       var g = 1 - f;
       var x = g * g * u.sx + 2 * g * f * cx2 + f * f * u.hx;
       var y = g * g * u.sy + 2 * g * f * cy2 + f * f * u.hy;
-      var pitch = -u.facing * 0.14 * (1 - f);               // nose-down while moving
+      // thrust-vector pitch: nose-down while accelerating out, swinging
+      // nose-UP through the deceleration to brake, level at zero groundspeed
+      var sp = Math.sin(TAU * f);
+      var pitch = -u.facing * (sp > 0 ? 0.12 * sp : 0.2 * sp);
       // descent: hover height down to skids-on-the-roof, with a nose-up flare
       var landY = this.o.reach - u.F * 0.39;
       y += (landY - u.hy) * descE;
       pitch -= u.facing * 0.05 * Math.sin(Math.PI * descE);
       if (bobF > 0 && now !== undefined) {
-        y += Math.sin(now * 0.0016 + u.phi) * u.F * 0.03 * bobF;
-        x += Math.sin(now * 0.0009 + u.phi) * u.F * 0.015 * bobF;
-        pitch += Math.sin(now * 0.0011 + u.phi) * 0.015 * bobF;
+        // a hover is never still: layered drift on several frequencies,
+        // like a pilot holding station with constant small corrections
+        var tb = now * 0.001, ph = u.phi;
+        y += (Math.sin(tb * 1.6 + ph) * 0.5 + Math.sin(tb * 2.9 + ph * 2.1) * 0.28 +
+              Math.sin(tb * 0.7 + ph * 3.3) * 0.42) * u.F * 0.032 * bobF;
+        x += (Math.sin(tb * 0.9 + ph * 1.7) * 0.6 + Math.sin(tb * 2.2 + ph * 0.6) * 0.4) * u.F * 0.028 * bobF;
+        pitch += (Math.sin(tb * 1.3 + ph) * 0.6 + Math.sin(tb * 3.1 + ph * 2.4) * 0.4) * 0.02 * bobF;
       }
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(pitch);
-      drawHeli(ctx, u, this._rot + u.phi, this._spin, 1 - f);
+      // blade flapping follows airspeed, which peaks mid-transit
+      drawHeli(ctx, u, this._rot + u.phi, this._spin, Math.sin(Math.PI * f));
       ctx.restore();
 
       // downwash: draft arcs under the skids, dying away with the rotor

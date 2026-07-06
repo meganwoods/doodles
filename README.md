@@ -130,7 +130,10 @@ A little Bell 412 that hovers above things — made for sitting above a
 button or a heading. Four-blade main rotor (it's a 412, not a two-blade
 Huey), boxy cabin with sliding-door windows, engine cowling, slim high
 tail boom with a swept fin and high-mounted tail rotor, and skids. It
-flies in from off-screen, hovers for a moment with a gentle bob, then
+flies in nose-down, flares nose-up to brake as it reaches the hover
+(thrust vectored against the direction of travel, level again at zero
+groundspeed), then holds a lively station — real helicopters never sit
+still, so it wanders on layered frequencies in position and pitch — then
 descends with a little nose-up flare, sets down on its skids, and spools
 the rotors to a stop — the blur disc fades, the blades come to rest, and
 the animation loop shuts off entirely (a parked helicopter costs no CPU).
@@ -165,6 +168,33 @@ Methods: `refly(seed?)` (alias `regrow`), `arrive()`, `depart()`,
 `land()` (touch down now), `takeoff()` (spool up and lift back to a
 hover — with `landAfter` set it will land again after the hover),
 `finish()`, `clear()`, `destroy()`.
+
+## In three dimensions 🧊
+
+Each renderer has a separate 3D sibling — same doodle style, same API
+shape, one extra standalone file each, still zero dependencies. Instead
+of a 3D library they carry a tiny hand-rolled engine: 3D geometry, a
+fixed perspective camera (`yaw`, `tilt`, `perspective` options),
+painter's-algorithm depth sorting, depth-faded ink, and backface shading
+so folded surfaces read as lit and shadowed.
+
+- **`flowers3d.js`** → `Flowers3D.grow(...)` — stems wander in real 3D,
+  tendrils curl in tilted planes, petal fans face the camera, and the
+  whole garden sways on a 3D breeze while idle.
+- **`cranes3d.js`** → `Cranes3D.build(...)` — square lattice towers with
+  braced faces and triangular lattice jibs that **slew**: each jib slowly
+  rotates around its tower, hook sweeping through space (`slewSpeed`).
+- **`kites3d.js`** → `Kites3D.fly(...)` — box kites are actual boxes,
+  diamonds fold along their spine with a dihedral, and kites drift on a
+  3D Lissajous breeze with wavy tails.
+- **`heli3d.js`** → `Heli3D.hover(...)` — a box-model 412 that flies in,
+  hovers while turning on the spot so you see every side (`turnSpeed`),
+  then lands and spools down, turntable stopping with the rotor.
+
+They share the 2D options (`edges`/`count`, `size`, `seed`, `trigger`,
+`animate`, `idle`, packing guarantees) and the same methods, `regrow`
+alias included. The 3D idle motion is what sells the depth, so `idle`
+defaults to true everywhere; it still respects `prefers-reduced-motion`.
 
 ## Colophon 🗒️
 

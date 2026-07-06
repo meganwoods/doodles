@@ -300,8 +300,40 @@
 
   const pad = Heli.hover('#cta', { labels: ['G-MEGN'] });
   pad.refly();         // fly in again with a new livery
+
+  // the same four, in three dimensions — one extra file each:
+  Flowers3D.grow('#card');  Cranes3D.build('#hero');
+  Kites3D.fly('#park');     Heli3D.hover('#cta');
 &lt;/script&gt;</code></pre>
   </div>
+
+  <header>
+    <p class="mono">part ii &mdash; in three dimensions</p>
+    <p class="sub" style="margin-top:10px">Same doodles, real depth: hand-rolled perspective, painter&rsquo;s sort, no libraries.</p>
+  </header>
+
+  <figure class="fig">
+    <figcaption class="mono">fig. 11 &mdash; flowers3d.js &middot; a garden with a breeze</figcaption>
+    <div class="ground" id="garden3d" title="click to regrow"></div>
+  </figure>
+
+  <figure class="fig sky">
+    <figcaption class="mono">fig. 12 &mdash; cranes3d.js &middot; the jibs slew</figcaption>
+    <div class="ground" id="site3d" title="click to rebuild"></div>
+  </figure>
+
+  <figure class="fig skyhigh">
+    <figcaption class="mono">fig. 13 &mdash; kites3d.js &middot; box kites are boxes now</figcaption>
+    <div class="ground" id="park3d" title="click to relaunch"></div>
+  </figure>
+
+  <figure class="fig sky">
+    <figcaption class="mono">fig. 14 &mdash; heli3d.js &middot; hovers on a turntable, then lands</figcaption>
+    <div class="card" id="pad3d" title="click to refly">
+      <h2>The 3D helipad &#128993;</h2>
+      <p>Watch it turn on the spot before it sets down.</p>
+    </div>
+  </figure>
 
   <section class="colophon">
     <p class="mono">colophon</p>
@@ -322,6 +354,10 @@
 <script src="cranes.js"></script>
 <script src="kites.js"></script>
 <script src="heli.js"></script>
+<script src="flowers3d.js"></script>
+<script src="cranes3d.js"></script>
+<script src="kites3d.js"></script>
+<script src="heli3d.js"></script>
 <script>
   (function () {
     var params = new URLSearchParams(location.search);
@@ -387,6 +423,26 @@
         labels: ['G-MEGN'],
         whenVisible: !isStatic,
         seed: isStatic ? 9 : null, animate: !isStatic, idle: !isStatic
+      }),
+      Flowers3D.grow('#garden3d', {
+        edges: ['top'], size: [40, 100], spacing: 52,
+        whenVisible: !isStatic,
+        seed: isStatic ? 12 : null, animate: !isStatic, idle: !isStatic
+      }),
+      Cranes3D.build('#site3d', {
+        count: 2, size: [80, 120],
+        whenVisible: !isStatic,
+        seed: isStatic ? 4 : null, animate: !isStatic, idle: !isStatic
+      }),
+      Kites3D.fly('#park3d', {
+        count: 3, size: [70, 120],
+        whenVisible: !isStatic,
+        seed: isStatic ? 3 : null, animate: !isStatic, idle: !isStatic
+      }),
+      Heli3D.hover('#pad3d', {
+        size: [55, 75],
+        whenVisible: !isStatic,
+        seed: isStatic ? 5 : null, animate: !isStatic, idle: !isStatic
       })
     ];
 
